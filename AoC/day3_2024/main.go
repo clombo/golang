@@ -12,7 +12,7 @@ import (
 func main() {
 
 	//Regex to match the pattern "mul(x,y)" where x and y are integers
-	re := regexp.MustCompile(`mul\((\d{1,3}),(\d{1,3})\)`)
+	re := regexp.MustCompile(`mul\((\d{1,3}),(\d{1,3})\)|do\(\)|don't\(\)`)
 
 	//Read input from file
 	data, err := os.ReadFile("corruptMemory.txt")
@@ -32,23 +32,47 @@ func main() {
 	fmt.Printf("Total matches found: %d\n", totalMatches)
 
 	mulList := []int{}
+	enabled := true
 
 	for _, match := range matches {
 
-		x, err1 := strconv.Atoi(match[1])
-		y, err2 := strconv.Atoi(match[2])
+		//x, err1 := strconv.Atoi(match[1])
+		//y, err2 := strconv.Atoi(match[2])
 
-		if err1 != nil || err2 != nil {
-			fmt.Println("Error converting string to int:", err1, err2)
-			continue
+		//if err1 != nil || err2 != nil {
+		//	fmt.Println("Error converting string to int:", err1, err2)
+		//	continue
+		//}
+
+		total := 0
+
+		if match[0] == "do()" {
+			enabled = true
+		} else if match[0] == "don't()" {
+			enabled = false
+		} else if enabled {
+			x, err1 := strconv.Atoi(match[1])
+			y, err2 := strconv.Atoi(match[2])
+
+			if err1 != nil || err2 != nil {
+				fmt.Println("Error converting string to int:", err1, err2)
+				continue
+			}
+
+			total = x * y
 		}
 
-		total := x * y
 		mulList = append(mulList, total)
+
 	}
 
 	sum := mathUtils.SumOfInts(mulList)
 
 	fmt.Println("Total sum of multiplications:", sum)
+}
 
+func atoi(s string) int {
+	var n int
+	fmt.Sscanf(s, "%d", &n)
+	return n
 }
