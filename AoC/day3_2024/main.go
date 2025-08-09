@@ -70,9 +70,3 @@ func main() {
 
 	fmt.Println("Total sum of multiplications:", sum)
 }
-
-func atoi(s string) int {
-	var n int
-	fmt.Sscanf(s, "%d", &n)
-	return n
-}
