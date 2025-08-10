@@ -8,6 +8,17 @@ import (
 	"strings"
 )
 
+func ReadFileContents(filePath string) (string, error) {
+
+	data, err := os.ReadFile(filePath)
+
+	if err != nil {
+		return "", err
+	}
+
+	return string(data), nil
+}
+
 func ReadFileLines(filePath string) ([][]int, error) {
 	// Implementation for reading lines from a file
 	var data [][]int
