@@ -3,6 +3,7 @@ package db
 import (
 	"database/sql"
 	"fmt"
+	"math/rand/v2"
 
 	"github.com/clombo/Tutorials/TodoList/internal/entities"
 )
@@ -11,7 +12,7 @@ func Init(dbFile string) (*sql.DB, error) {
 
 	db, err := sql.Open("sqlite3", dbFile)
 	if err != nil {
-		return nil, fmt.Errorf("Failed to open DB connection")
+		return nil, fmt.Errorf("failed to open DB connection")
 	}
 
 	// Ensure db is closed if we return early due to an error
@@ -32,7 +33,7 @@ func Init(dbFile string) (*sql.DB, error) {
 
 	_, err = db.Exec(createTasksTableSQL)
 	if err != nil {
-		return nil, fmt.Errorf("Failed to create tasks table: %v", err)
+		return nil, fmt.Errorf("failed to create tasks table: %v", err)
 	}
 
 	// Create collections table if it doesn't exist
@@ -43,7 +44,7 @@ func Init(dbFile string) (*sql.DB, error) {
 
 	_, err = db.Exec(createCollectionsTableSQL)
 	if err != nil {
-		return nil, fmt.Errorf("Failed to create collections table: %v", err)
+		return nil, fmt.Errorf("failed to create collections table: %v", err)
 	}
 
 	// If we reach here, everything succeeded, so don't close the db
@@ -126,28 +127,88 @@ func GetAllTasksByCollection(db *sql.DB, collectionName string) (*[]entities.Tas
 
 }
 
-func CreateNewTask(db *sql.DB, description string) error {
+func CreateNewTask(db *sql.DB, description string, collection string) error {
+
+	var numberExists bool
+	numExistsQuery := "SELECT EXISTS(SELECT 1 FROM tasks WHERE taskNumber = ?)"
+	var newTaskNumber int
+
+	//Loop till you find number that does not exist on the database
+	for {
+
+		newTaskNumber = generateUniqueId()
+
+		err := db.QueryRow(numExistsQuery, newTaskNumber).Scan(&numberExists)
+		if err != nil {
+			return fmt.Errorf("error creating new task: %v", err)
+		}
+
+		// If the task number doesn't exist, break out of loop
+		if !numberExists {
+			break
+		}
+	}
+
+	// Insert the new task with the unique task number
+	insertQuery := "INSERT INTO tasks (collection, task, taskNumber) VALUES (?, ?, ?)"
+	_, err := db.Exec(insertQuery, collection, description, newTaskNumber)
+	if err != nil {
+		return fmt.Errorf("error inserting new task: %v", err)
+	}
+
+	return nil
 
 }
 
-func RemoveTask(db *sql.DB, id int) {
+func RemoveTask(db *sql.DB, id int) error {
+
+	var exists bool
+	existsQuery := "SELECT EXISTS(SELECT 1 FROM tasks WHERE id = ?)"
+
+	err := db.QueryRow(existsQuery, id).Scan(&exists)
+
+	if err != nil {
+		return fmt.Errorf("error removing task: %v", err)
+	}
+
+	if !exists {
+		return fmt.Errorf("task not found: %v", id)
+	}
+
+	// Delete the task
+	deleteQuery := "DELETE FROM tasks WHERE id = ?"
+	result, err := db.Exec(deleteQuery, id)
+	if err != nil {
+		return fmt.Errorf("error deleting task: %v", err)
+	}
+
+	// Verify that exactly one row was affected
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("error getting rows affected: %v", err)
+	}
+
+	if rowsAffected == 0 {
+		return fmt.Errorf("no task was deleted")
+	}
+
+	return nil
+}
+
+func GetCollections(db *sql.DB) (*[]entities.Collection, error) {
 
 }
 
-func GetCollections(db *sql.DB) {
+func CollectionExists(db *sql.DB) (bool, error) {}
+
+func AddCollection(db *sql.DB, collectionName string) error {
 
 }
 
-func CollectionExists(db *sql.DB) {}
-
-func AddCollection(db *sql.DB, collectionName string) {
-
-}
-
-func RemoveCollection(db *sql.DB, collectionName string) {
+func RemoveCollection(db *sql.DB, collectionName string) error {
 
 }
 
 func generateUniqueId() int {
-	//Generate a unique 4-digit ID starting from 1000
+	return rand.IntN(9000) + 1000
 }

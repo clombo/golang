@@ -8,6 +8,40 @@ import (
 //TODO: As you get better use interfaces instead so that it can be one struct and choosen according to the operation
 //like SELECT,CREATE,DELETE,UPDATE
 
+/*
+	builder := sqlbuilder.NewBuilder()
+
+	SELECT
+	builder
+		.Select(struct here)
+		.From(table here) //optional
+		.Where(where clause here with args)
+		.ExecuteOne() OR .ExecuteMany()
+
+	CREATE TABLE
+	builder.CreateTable(struct here)
+
+	ANY
+	builder
+		.HasAny(pass ref to bool)
+		.From(either a struct or a string) //This is required!
+		.Where() //This is required for the Any to work
+
+	//INSERT
+	builder
+		.Add(new record here)
+		.Into(either a struct or a string) //This is optional
+
+	//DELETE
+	builder
+		.Delete(struct or string of table name)
+		.Where() //This is required for delete to work
+
+	builder
+		.DeleteBulk(struct or string of table name)
+
+*/
+
 // struct that holds everything for SELECT
 type QueryBuilder struct {
 	db          *sql.DB
