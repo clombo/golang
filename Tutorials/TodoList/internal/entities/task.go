@@ -4,4 +4,5 @@ type Task struct {
 	ID         int
 	Collection string
 	Task       string
+	TaskNumber int
 }
