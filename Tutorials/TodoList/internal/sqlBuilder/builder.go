@@ -29,7 +29,7 @@ import (
 
 	//INSERT
 	builder
-		.Add(new record here)
+		.Add(new record here) //If Into is not specified use the struct passed here
 		.Into(either a struct or a string) //This is optional
 
 	//DELETE
@@ -40,6 +40,21 @@ import (
 	builder
 		.DeleteBulk(struct or string of table name)
 
+	Documentation:
+		Document each parts usages
+		Document tags
+
+	Future plans:
+	- Check different ways how to build strings efficiently
+	- Add tags for structs for tings like PRIMARY KEY, FOREIGN KEY, UNIQUE
+	- Get insparation from other ORM's if exists
+	- Get insparation from other Linq like modules
+	- Possibly investigate context like struct holding db sets
+	- Add logging support like EfCore has where you can see the query built when enabled
+	- Add SP support
+	- Add transaction support
+	- Add repository and UnitOfWork pattern support
+	- Add database support for MsSql,PostgreSql,MySql
 */
 
 // struct that holds everything for SELECT

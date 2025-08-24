@@ -7,7 +7,10 @@ import (
 	"strings"
 
 	"github.com/clombo/Tutorials/TodoList/collections"
+	"github.com/clombo/Tutorials/TodoList/internal/db"
 	"github.com/clombo/Tutorials/TodoList/tasks"
+
+	_ "github.com/mattn/go-sqlite3"
 )
 
 /*
@@ -35,6 +38,14 @@ Task cannot be added without a collection and collection needs to exist.
 */
 
 func main() {
+
+	//Initialize DB connection
+	dbcon, err := db.Init("./tododb")
+
+	if err != nil {
+		panic(err)
+	}
+
 	reader := bufio.NewReader(os.Stdin)
 	mainMenu()
 
@@ -46,17 +57,17 @@ func main() {
 
 		switch strings.ToLower(input) {
 		case "add":
-			tasks.Add()
+			tasks.Add(dbcon)
 		case "add collection":
-			collections.Add()
+			collections.Add(dbcon)
 		case "show":
-			tasks.ShowAll()
+			tasks.ShowAll(dbcon)
 		case "show collection":
-			collections.ShowTasks("default") // Assuming "default" is a placeholder for a specific collection
+			collections.ShowTasks(dbcon) // Assuming "default" is a placeholder for a specific collection
 		case "remove task":
-			tasks.Remove(1001) // Example task ID, replace with actual logic to get task ID
+			tasks.Remove(dbcon) // Example task ID, replace with actual logic to get task ID
 		case "remove collection":
-			collections.Remove("default") // Assuming "default" is a placeholder for a specific collection
+			collections.Remove(dbcon) // Assuming "default" is a placeholder for a specific collection
 		case "help":
 			mainMenu()
 		case "exit":

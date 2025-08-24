@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"math/rand/v2"
+	"strings"
 
 	"github.com/clombo/Tutorials/TodoList/internal/entities"
 )
@@ -197,15 +198,97 @@ func RemoveTask(db *sql.DB, id int) error {
 
 func GetCollections(db *sql.DB) (*[]entities.Collection, error) {
 
+	query := "SELECT Name FROM collections"
+
+	rows, err := db.Query(query)
+	if err != nil {
+		return nil, fmt.Errorf("error getting collections: %v", err)
+	}
+
+	var collections []entities.Collection
+
+	for rows.Next() {
+		var collection entities.Collection
+		err := rows.Scan(&collection.Name)
+
+		if err != nil {
+			return nil, fmt.Errorf("error scanning collection row: %v", err)
+		}
+
+		collections = append(collections, collection)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, fmt.Errorf("error during row iteration: %v", err)
+	}
+
+	return &collections, nil
 }
 
-func CollectionExists(db *sql.DB) (bool, error) {}
+func CollectionExists(db *sql.DB, collection string) (bool, error) {
+
+	var collectionExists bool
+	query := "SELECT EXISTS(SELECT 1 FROM collections WHERE Name = ?)"
+
+	err := db.QueryRow(query, collection).Scan(&collectionExists)
+
+	if err != nil {
+		return false, fmt.Errorf("error checking collection: %v", err)
+	}
+
+	return collectionExists, nil
+
+}
 
 func AddCollection(db *sql.DB, collectionName string) error {
 
+	var collectionExists bool
+	collectionName = strings.ToLower(collectionName)
+
+	Insertquery := "INSERT INTO collections (name) VALUES (?)"
+	existsQuery := "SELECT EXISTS(SELECT 1 FROM collections WHERE Name = ?)"
+
+	err := db.QueryRow(existsQuery, collectionName).Scan(&collectionExists)
+
+	if err != nil {
+		return fmt.Errorf("error adding new collection: %v", err)
+	}
+
+	if !collectionExists {
+		_, err := db.Exec(Insertquery, collectionName)
+
+		if err != nil {
+			return fmt.Errorf("error adding new collection: %v", err)
+		}
+
+	}
+
+	return nil
 }
 
 func RemoveCollection(db *sql.DB, collectionName string) error {
+
+	var collectionExists bool
+	collectionName = strings.ToLower(collectionName)
+
+	deleteQuery := "DELETE FROM collections WHERE name = ?"
+	existsQuery := "SELECT EXISTS(SELECT 1 FROM collections WHERE Name = ?)"
+
+	err := db.QueryRow(existsQuery, collectionName).Scan(&collectionExists)
+
+	if err != nil {
+		return fmt.Errorf("error removing collection: %v", err)
+	}
+
+	if collectionExists {
+		_, err := db.Exec(deleteQuery, collectionName)
+
+		if err != nil {
+			return fmt.Errorf("error removing collection: %v", err)
+		}
+	}
+
+	return nil
 
 }
 
