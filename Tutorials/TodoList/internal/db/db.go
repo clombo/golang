@@ -111,7 +111,7 @@ func GetAllTasksByCollection(db *sql.DB, collectionName string) (*[]entities.Tas
 
 	for rows.Next() {
 		var task entities.Task
-		err := rows.Scan(&task.ID, &task.Task, &task.TaskNumber, &task.Collection)
+		err := rows.Scan(&task.ID, &task.Collection, &task.Task, &task.TaskNumber)
 
 		if err != nil {
 			return nil, fmt.Errorf("error scanning task row: %v", err)
@@ -164,7 +164,7 @@ func CreateNewTask(db *sql.DB, description string, collection string) error {
 func RemoveTask(db *sql.DB, id int) error {
 
 	var exists bool
-	existsQuery := "SELECT EXISTS(SELECT 1 FROM tasks WHERE id = ?)"
+	existsQuery := "SELECT EXISTS(SELECT 1 FROM tasks WHERE TaskNumber = ?)"
 
 	err := db.QueryRow(existsQuery, id).Scan(&exists)
 
@@ -177,7 +177,7 @@ func RemoveTask(db *sql.DB, id int) error {
 	}
 
 	// Delete the task
-	deleteQuery := "DELETE FROM tasks WHERE id = ?"
+	deleteQuery := "DELETE FROM tasks WHERE TaskNumber = ?"
 	result, err := db.Exec(deleteQuery, id)
 	if err != nil {
 		return fmt.Errorf("error deleting task: %v", err)
@@ -264,6 +264,23 @@ func AddCollection(db *sql.DB, collectionName string) error {
 	}
 
 	return nil
+}
+
+func CollectionHasTasks(db *sql.DB, collectionName string) (bool, error) {
+
+	var hasTasks bool
+	collectionName = strings.ToLower(collectionName)
+
+	query := "SELECT EXISTS(SELECT 1 FROM tasks WHERE collection = ?)"
+
+	err := db.QueryRow(query, collectionName).Scan(&hasTasks)
+
+	if err != nil {
+		return false, fmt.Errorf("error checking tasks for collection: %v", err)
+	}
+
+	return hasTasks, nil
+
 }
 
 func RemoveCollection(db *sql.DB, collectionName string) error {

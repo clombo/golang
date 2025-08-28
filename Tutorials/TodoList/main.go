@@ -63,7 +63,9 @@ func main() {
 		case "show":
 			tasks.ShowAll(dbcon)
 		case "show collection":
-			collections.ShowTasks(dbcon) // Assuming "default" is a placeholder for a specific collection
+			collections.ShowTasks(dbcon)
+		case "display":
+			collections.DisplayCollections(dbcon)
 		case "remove task":
 			tasks.Remove(dbcon) // Example task ID, replace with actual logic to get task ID
 		case "remove collection":
@@ -85,10 +87,11 @@ func mainMenu() {
 	fmt.Println("# Main Menu #")
 	fmt.Println("1. add - Add a new task to a collection. This will require you to specify the task and the collection it belongs to.")
 	fmt.Println("2. add collection - Create a new collection to organize your tasks.")
-	fmt.Println("3. show - Display all tasks across all collections.")
-	fmt.Println("4. show collection - Display all tasks within a specific collection.")
-	fmt.Println("5. remove task - Remove a specific task by its ID.")
-	fmt.Println("6. remove collection - Remove a collection and all its tasks. If the collection has tasks, you will be prompted to confirm the deletion.")
-	fmt.Println("7. help - Display this help menu.")
-	fmt.Println("8. exit - Exit the application.")
+	fmt.Println("3. display - Display all available collections")
+	fmt.Println("4. show - Display all tasks across all collections.")
+	fmt.Println("5. show collection - Display all tasks within a specific collection.")
+	fmt.Println("6. remove task - Remove a specific task by its ID.")
+	fmt.Println("7. remove collection - Remove a collection and all its tasks. If the collection has tasks, you will be prompted to confirm the deletion.")
+	fmt.Println("8. help - Display this help menu.")
+	fmt.Println("9. exit - Exit the application.")
 }

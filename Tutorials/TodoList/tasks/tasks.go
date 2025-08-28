@@ -16,7 +16,19 @@ func Add(dbcon *sql.DB) {
 	collectionName := promptForCollection()
 	newTask := promptForTaskDetails()
 
-	err := db.CreateNewTask(dbcon, newTask, collectionName)
+	colExists, err := db.CollectionExists(dbcon, collectionName)
+
+	if err != nil {
+		fmt.Println("Failed to add task: ", err)
+		return
+	}
+
+	if !colExists {
+		fmt.Println("Cannot add task to collection that does not exist.")
+		return
+	}
+
+	err = db.CreateNewTask(dbcon, newTask, collectionName)
 
 	if err != nil {
 		fmt.Println(err)
@@ -44,7 +56,24 @@ func Remove(dbcon *sql.DB) {
 
 func ShowAll(dbcon *sql.DB) {
 
-	fmt.Println("Showing all tasks...")
+	tasks, err := db.GetAllTasks(dbcon)
+
+	if err != nil {
+		fmt.Println("Failed getting all tasks: ", err)
+		return
+	}
+
+	if len(*tasks) == 0 {
+		fmt.Println("No tasks available")
+		return
+	}
+
+	fmt.Println("Task Number | Collection | Description")
+
+	for _, task := range *tasks {
+		fmt.Printf("%d | %s | %s\n", task.TaskNumber, task.Collection, task.Task)
+	}
+
 }
 
 func promptForCollection() string {
