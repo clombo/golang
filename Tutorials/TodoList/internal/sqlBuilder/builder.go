@@ -75,7 +75,29 @@ func NewQueryBuilder(db *sql.DB) *QueryBuilder {
 	}
 }
 
-//
+func (qb *QueryBuilder) Select(structPtr interface{}) *QueryBuilder {
+
+	//Handle pointer to struct using reflection
+
+	//Auto-infer table name if not set using plural
+
+	//Extract field names using custom "relic" tag
+
+	return qb
+}
+
+func (qb *QueryBuilder) From(tableName string) *QueryBuilder {
+
+	//Set table manually
+
+	return qb
+}
+
+func (qb *QueryBuilder) Where() *QueryBuilder {
+	//Infer only values from struct
+
+	return qb
+}
 
 // struct that holds everything for CREATE
 type CreateBuilder struct {
